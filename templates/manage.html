@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<title>File Manager</title>
+<h1>File Manager</h1>
+
+{#<form id="form1" method="post" action="/upload_apk" enctype="multipart/form-data">#}
+{#    <div>#}
+{#        <input id="File1" type="file" name="apkfile"/>#}
+{#        <input type="submit"></input>#}
+{#    </div>#}
+{#</form>#}
+<form id="form1" method="post" action="{{ url_for("upload_apk",project_name="cql") }}" enctype="multipart/form-data">
+    <div>
+        <input id="File1" type="file" name="apkfile"/>
+        <input type="submit"></input>
+    </div>
+</form>
+<a href="{{ url_for('manage_file') }}">文件管理</a>
+<hr>
+
+{% for file in files_list %}
+    - {{ file }}
+    <a href="{{ url_for('download', filename=file) }}">下载</a>
+    <a href="{{ url_for('delete', filename=file) }}">删除</a><br>
+{% endfor %}
