@@ -26,29 +26,57 @@ def allowed_file_apk(filename):
 @app.route('/error<err_msg>')
 def error(err_msg):
     return render_template('error.html', err_msg=err_msg)
-# 上传文件
-@app.route('/upload', methods=['POST'], strict_slashes=False)
-def api_upload():
-    file_dir = os.path.join(basedir, app.config['UPLOAD_FOLDER'])
+
+
+# 新建项目工程
+@app.route('/new_project', methods=['POST'], strict_slashes=False)
+def new_project():
+    projectname = request.form.get('projectname')  # 项目名称
+    keystore = request.files['keystore']  # 签名文件
+    aliase = request.form.get('aliase')  # 别名
+    storepass = request.form.get('storepass')  # keystore第一个密码
+    keypass = request.form.get('keypass')  # keystore第二个密码
+
+    if projectname.strip()=='' or aliase.strip()=='' or storepass.strip()==''or keypass.strip()=='':  # 判断字段是否为空
+        return redirect(url_for('error', err_msg="必填项不能为空"))
+
+    file_dir = os.path.join(basedir, app.config['UPLOAD_FOLDER'],projectname)
+
+    print('file_dir：', file_dir)
+
     if not os.path.exists(file_dir):
         os.makedirs(file_dir)
-    f = request.files['myfile']  # 从表单的file字段获取文件，myfile为该表单的name值
-    if f and allowed_file(f.filename):  # 判断是否是允许上传的文件类型
-        print('原始文件名：', f.filename)
-        fname = f.filename
-        print('文件名：', fname)
-        f.save(os.path.join(file_dir, fname))  # 保存文件到upload目录
-        print("token：", fname)
+
+    if keystore:
+        fname = keystore.filename
+        print('keystore文件名：', fname)
+        keystore.save(os.path.join(file_dir, fname))  # 保存文件到upload目录
         return redirect(url_for('manage_file'))
     else:
-        return redirect(url_for('error',err_msg="ss"))
+        return redirect(url_for('error',err_msg="创建项目失败"))
+
+# # 上传文件
+# @app.route('/upload', methods=['POST'], strict_slashes=False)
+# def api_upload():
+#     file_dir = os.path.join(basedir, app.config['UPLOAD_FOLDER'])
+#     if not os.path.exists(file_dir):
+#         os.makedirs(file_dir)
+#     f = request.files['myfile']  # 从表单的file字段获取文件，myfile为该表单的name值
+#     if f and allowed_file(f.filename):  # 判断是否是允许上传的文件类型
+#         print('原始文件名：', f.filename)
+#         fname = f.filename
+#         print('文件名：', fname)
+#         f.save(os.path.join(file_dir, fname))  # 保存文件到upload目录
+#         print("token：", fname)
+#         return redirect(url_for('manage_file'))
+#     else:
+#         return redirect(url_for('error',err_msg="ss"))
 
 # 上传apk文件
 @app.route('/upload_apk<project_name>', methods=['POST'], strict_slashes=False)
 def upload_apk(project_name):
     print('文件名project_name：', project_name)
-    file_temp = os.path.join(basedir, app.config['UPLOAD_FOLDER'])
-    file_dir = os.path.join(file_temp, project_name)
+    file_dir = os.path.join(basedir, app.config['UPLOAD_FOLDER'],project_name)
     print('file_dir：', file_dir)
     if not os.path.exists(file_dir):
         os.makedirs(file_dir)

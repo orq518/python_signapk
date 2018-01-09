@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<title>File Manager</title>
-<h1>File Manager</h1>
+<title>自动签名</title>
+<h1>自动签名</h1>
 
 {#<form id="form1" method="post" action="/upload_apk" enctype="multipart/form-data">#}
 {#    <div>#}
@@ -8,17 +8,44 @@
 {#        <input type="submit"></input>#}
 {#    </div>#}
 {#</form>#}
-<form id="form1" method="post" action="{{ url_for("upload_apk",project_name="cql") }}" enctype="multipart/form-data">
+<h1>新建项目</h1>
+<form id="form1" method="post" action="new_project" enctype="multipart/form-data">
     <div>
-        <input id="File1" type="file" name="apkfile"/>
-        <input type="submit"></input>
+        <form>
+            项目名称:
+            <input id="id_aliase" type="text" name="projectname"/>
+            <br>
+            keystore文件:
+            <input id="id_keystore" type="file" name="keystore"/>
+            <br>
+            别名aliase:
+            <input id="id_aliase" type="text" name="aliase"/>
+            <br>
+            密码1:
+            <input id="id_psw1" type="text" name="storepass"/>
+            密码2:
+            <input id="id_psw2" type="text" name="keypass"/>
+            <br>
+            <input type="submit"></input>
+        </form>
     </div>
 </form>
-<a href="{{ url_for('manage_file') }}">文件管理</a>
-<hr>
-
+<br>
+<h1>列表</h1>
 {% for file in files_list %}
     - {{ file }}
-    <a href="{{ url_for('download', filename=file) }}">下载</a>
-    <a href="{{ url_for('delete', filename=file) }}">删除</a><br>
+    <button href="{{ url_for('delete', filename=file) }}">删除工程</button><br>
+    ----apk上传----
+    <form id="form1" method="post" action="{{ url_for("upload_apk",project_name="cql") }}"
+          enctype="multipart/form-data">
+        <div>
+            <input id="File1" type="file" name="apkfile"/>
+            <input type="submit"></input>
+        </div>
+    </form>
+    <br>
+    <button href="{{ url_for('download', filename=file) }}">开始签名</button>
+    <br>
+    <button href="{{ url_for('download', filename=file) }}">下载已签名的文件</button>
+
 {% endfor %}
