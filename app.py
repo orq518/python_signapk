@@ -47,10 +47,15 @@ def new_project():
     if not os.path.exists(file_dir):
         os.makedirs(file_dir)
 
+    config = open(os.path.join(file_dir,"config_keystore.txt"), "w")
+    try:
+        config.write("aliase="+aliase+"#"+"storepass="+storepass+"#"+"keypass=" + keypass)
+    finally:
+        config.close()
     if keystore:
-        fname = keystore.filename
+        fname = "keystore_"+keystore.filename
         print('keystore文件名：', fname)
-        keystore.save(os.path.join(file_dir, fname))  # 保存文件到upload目录
+        keystore.save(os.path.join(file_dir, fname))
         return redirect(url_for('manage_file'))
     else:
         return redirect(url_for('error',err_msg="创建项目失败"))
@@ -114,12 +119,54 @@ def upload_apk(project_name):
 #     else:
 #         return redirect(url_for('error',err_msg="文件上传失败"))
 
+# @app.route('/manage')
+# def manage_file():
+#     file_dir = os.path.join(basedir, app.config['UPLOAD_FOLDER'])
+#     files_list = os.listdir(file_dir)
+#     print("读取文件路径：", files_list)
+#     return render_template('manage.html', files_list=files_list)
+
 @app.route('/manage')
 def manage_file():
     file_dir = os.path.join(basedir, app.config['UPLOAD_FOLDER'])
-    files_list = os.listdir(file_dir)
-    print("读取文件路径：", files_list)
-    return render_template('manage.html', files_list=files_list)
+    projects_list = os.listdir(file_dir)
+    projects=[]
+    print("读取项目列表：", projects_list)
+    for project in projects_list:
+        project_dir = os.path.join(file_dir,project)
+        projects_content = os.listdir(project_dir)
+        print("读取项目内容：", projects_content)
+        project_dict = {}
+        project_dict['project_name'] = ""+project
+        for file in projects_content:
+            if file.startswith('keystore_'):#读取keystore文件名
+                project_dict['keystore_name']=file
+                project_dict['keystore_path']=os.path.join(project_dir,file)
+            elif file.startswith('unsign_'):#未签名文件
+                project_dict['unsign_apk_name']=file
+                project_dict['unsign_apk_path']=os.path.join(project_dir, file)
+            elif file.startswith('sign_'):#已经签名apk
+                project_dict['sign_apk_name']=file
+                project_dict['sign_apk_path']=os.path.join(project_dir, file)
+            elif file.startswith('config_'):#keystore配置文件
+                config_file_path=os.path.join(project_dir, file)
+                print('config_file_path:',config_file_path)
+                config_file = open(config_file_path)
+                if not config_file:
+                    pass
+                # "aliase=" + aliase + "#" + "storepass=" + storepass + "#" + "keypass=" + keypass
+                try:
+                    context = config_file.read()
+                    data=context.split('#')
+                    for text in data:
+                        t=text.split('=')
+                        if len(t)==2:
+                            project_dict[t[0]]=t[1]
+                finally:
+                    config_file.close()
+                projects.append(project_dict)
+
+    return render_template('manage.html', projects_list=projects)
 
 @app.route('/download_file<filename>')
 def download(filename):
@@ -130,6 +177,14 @@ def download(filename):
             return send_from_directory(file_dir, filename, as_attachment=True)
             # send_from_directory方法，经过实测，需加参数as_attachment=True，否则对于图片格式、txt格式，
             # 会把文件内容直接显示在浏览器，对于xlsx等格式，虽然会下载，但是下载的文件名也不正确，切记切记
+
+# @app.route('/delete<apk_path>')
+# def delete(apk_path):
+#     print("下载文件名：", apk_path)
+#     if request.method == "GET":
+#         if os.path.isfile(apk_path):
+#             os.remove(apk_path)
+#             return redirect(url_for('manage_file'))
 
 @app.route('/delete_file<filename>')
 def delete(filename):

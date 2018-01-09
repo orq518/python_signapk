@@ -32,11 +32,10 @@
 </form>
 <br>
 <h1>列表</h1>
-{% for file in files_list %}
-    - {{ file }}
-    <button href="{{ url_for('delete', filename=file) }}">删除工程</button><br>
+{% for file in projects_list %}
+    #### {{ file["project_name"] }}####
     ----apk上传----
-    <form id="form1" method="post" action="{{ url_for("upload_apk",project_name="cql") }}"
+    <form id="form1" method="post" action="{{ url_for("upload_apk",project_name=file["project_name"]) }}"
           enctype="multipart/form-data">
         <div>
             <input id="File1" type="file" name="apkfile"/>
@@ -44,8 +43,12 @@
         </div>
     </form>
     <br>
-    <button href="{{ url_for('download', filename=file) }}">开始签名</button>
+      ----{{ file["unsign_apk_name"] }}
+    <button href="{{ url_for('delete', filename=file["unsign_apk_path"]) }}">删除</button><br>
     <br>
-    <button href="{{ url_for('download', filename=file) }}">下载已签名的文件</button>
-
+    <button href="{{ url_for('download', filename=file["project_name"]) }}">开始签名</button>
+    <br>
+    ----{{ file["sign_apk_name"] }}
+    <button href="{{ url_for('download', filename=file["sign_apk_name"]) }}">下载已签名的文件</button>
+    <br><br>
 {% endfor %}
