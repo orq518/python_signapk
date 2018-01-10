@@ -43,12 +43,23 @@
         </div>
     </form>
     <br>
-      ----{{ file["unsign_apk_name"] }}
-    <button href="{{ url_for('delete', filename=file["unsign_apk_path"]) }}">删除</button><br>
+    {% if "unsign_apk_name" in file %}
+        ----{{ file["unsign_apk_name"] }}
+        <a href="{{ url_for('delete', project_name=file['project_name'] ,file_name=file["unsign_apk_name"]) }}">删除</a>
+        <br>
+    {% else %}
+        无需要签名的apk
+    {% endif %}
+
     <br>
-    <button href="{{ url_for('download', filename=file["project_name"]) }}">开始签名</button>
+    <a href="{{ url_for('sign_apk', project_name=file["project_name"]) }}">开始签名</a>
     <br>
-    ----{{ file["sign_apk_name"] }}
-    <button href="{{ url_for('download', filename=file["sign_apk_name"]) }}">下载已签名的文件</button>
+    {% if "signed_apk_name" in file %}
+        ----{{ file["signed_apk_name"] }}
+        <a href="{{ url_for('download', project_name=file['project_name'] ,file_name=file["signed_apk_name"]) }}">下载</a>
+        <br>
+    {% else %}
+        无已经签名的apk
+    {% endif %}
     <br><br>
 {% endfor %}
