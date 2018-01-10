@@ -23,6 +23,7 @@
             <br>
             密码1:
             <input id="id_psw1" type="text" name="storepass"/>
+            <br>
             密码2:
             <input id="id_psw2" type="text" name="keypass"/>
             <br>
@@ -31,10 +32,11 @@
     </div>
 </form>
 <br>
-<h1>列表</h1>
+<h1>项目列表</h1>
 {% for file in projects_list %}
     #### {{ file["project_name"] }}####
-    ----apk上传----
+    <br>
+    ----未签名apk上传----
     <form id="form1" method="post" action="{{ url_for("upload_apk",project_name=file["project_name"]) }}"
           enctype="multipart/form-data">
         <div>
@@ -44,22 +46,24 @@
     </form>
     <br>
     {% if "unsign_apk_name" in file %}
-        ----{{ file["unsign_apk_name"] }}
+        未签名文件({{ file["unsign_apk_name"] }})
         <a href="{{ url_for('delete', project_name=file['project_name'] ,file_name=file["unsign_apk_name"]) }}">删除</a>
         <br>
+        <br>
+        <a href="{{ url_for('sign_apk', project_name=file["project_name"]) }}">开始签名</a>
+        <br>
     {% else %}
-        无需要签名的apk
+        无未签名的apk,请上传
+        <br>
     {% endif %}
-
-    <br>
-    <a href="{{ url_for('sign_apk', project_name=file["project_name"]) }}">开始签名</a>
     <br>
     {% if "signed_apk_name" in file %}
-        ----{{ file["signed_apk_name"] }}
+        已签名文件({{ file["signed_apk_name"] }})
         <a href="{{ url_for('download', project_name=file['project_name'] ,file_name=file["signed_apk_name"]) }}">下载</a>
         <br>
     {% else %}
         无已经签名的apk
+
     {% endif %}
     <br><br>
 {% endfor %}

@@ -2,6 +2,7 @@ from werkzeug.utils import redirect
 from flask import Flask, render_template, url_for
 from flask import request, send_from_directory
 import os,time
+import subprocess
 
 
 app = Flask(__name__)
@@ -74,7 +75,8 @@ def upload_apk(project_name):
         return redirect(url_for('error', err_msg="错误的文件类型"))
     if f:
         print('原始文件名：', f.filename)
-        fname = "unsign_"+f.filename
+        time_signed = time.strftime('%m%d_%H%M%S', time.localtime(time.time()))
+        fname = "unsign_"+time_signed+f.filename
         print('文件名：', fname)
         #先删除以前的文件
         projects_list = os.listdir(file_dir)
@@ -159,7 +161,11 @@ def sign_apk(project_name):
         print("读取项目列表：", projects_content)
         project_dict = {}
         for file in projects_content:
-            if file.startswith('keystore_'):  # 读取keystore文件名
+            if file.startswith('signed_'):  # 已经签名apk  先删除
+                file_del = os.path.join(project_dir, file)
+                if os.path.isfile(file_del):
+                    os.remove(file_del)
+            elif file.startswith('keystore_'):  # 读取keystore文件名
                 project_dict['keystore_name'] = file
                 project_dict['keystore_path'] = os.path.join(project_dir, file)
             elif file.startswith('unsign_'):  # 未签名文件
@@ -181,15 +187,24 @@ def sign_apk(project_name):
                             project_dict[t[0]] = t[1]
                 finally:
                     config_file.close()
-        time_signed = time.strftime('%m_%d_%H_%M', time.localtime(time.time()))
+        time_signed = time.strftime('%m%d_%H%M%S', time.localtime(time.time()))
         sign_apk_path=os.path.join(project_dir, 'signed_apk_'+time_signed+'.apk')
+        if not 'keystore_path' in project_dict or not 'unsign_apk_path' in project_dict:
+            return redirect(url_for('error', err_msg="请上传未签名apk或者签名文件"))
         # signcmd = 'jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore "%s" -storepass "%s" -signedjar "%s" "%s" "%s"' % (
         # keystore, keypass, signedFile, f, keyalias)
         # signcmd = 'jarsigner -verbose -keystore /Users/ruiqiangou/Downloads/ucfpay_keystore -storepass ucfpay2014 -keypass ucfpay201407 -signedjar /Users/ruiqiangou/Downloads/北方金融网-—signed.apk -digestalg SHA1 -sigalg SHA256withRSA  /Users/ruiqiangou/Downloads/北方金融网_legu.apk ucfpay'
         signcmd = 'jarsigner -verbose -keystore "%s" -storepass "%s" -keypass "%s" -signedjar "%s" -digestalg SHA1 -sigalg SHA256withRSA  "%s" "%s"' % (
         project_dict['keystore_path'], project_dict['storepass'], project_dict['keypass'],sign_apk_path, project_dict['unsign_apk_path'], project_dict['aliase'])
-        os.system(signcmd)  # v1签名命令
-        return redirect(url_for('manage_file'))
+        result =os.system(signcmd) # v1签名命令
+        # result=os.popen(signcmd)
+        # result = subprocess.Popen(signcmd, shell=True)
+        print('命令结果：', result)
+        if result==0:#签名成功
+            return redirect(url_for('manage_file'))
+        else:
+            return redirect(url_for('error', err_msg="签名失败"))
+
 
 
 
