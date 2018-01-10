@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}项目签名{% endblock %}
+{% block page_content %}
+    <form id="form1" method="post" action="new_project" enctype="multipart/form-data">
+    <div>
+        <form>
+            项目名称:
+            <input id="id_aliase" type="text" name="projectname"/>
+            <br>
+            keystore文件:
+            <input id="id_keystore" type="file" name="keystore"/>
+            <br>
+            别名aliase:
+            <input id="id_aliase" type="text" name="aliase"/>
+            <br>
+            密码1:
+            <input id="id_psw1" type="text" name="storepass"/>
+            <br>
+            密码2:
+            <input id="id_psw2" type="text" name="keypass"/>
+            <br>
+            <input type="submit"></input>
+        </form>
+    </div>
+</form>
+{% endblock %}

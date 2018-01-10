@@ -1,39 +1,15 @@
-<!DOCTYPE html>
-<title>自动签名</title>
-<h1>自动签名</h1>
+{% extends "base.html" %}
+{% block title %}项目签名{% endblock %}
+{% block page_content %}
+{#      <form action="" method="get">#}
+{#        <label>1、普通下拉列表菜单</label>#}
+{#        <select name="">#}
+{#            <option value="0">DIVCSS5</option>#}
+{#            <option value="1">DIVCSS5</option>#}
+{#        </select>#}
+{#    </form>#}
 
-{#<form id="form1" method="post" action="/upload_apk" enctype="multipart/form-data">#}
-{#    <div>#}
-{#        <input id="File1" type="file" name="apkfile"/>#}
-{#        <input type="submit"></input>#}
-{#    </div>#}
-{#</form>#}
-<h1>新建项目</h1>
-<form id="form1" method="post" action="new_project" enctype="multipart/form-data">
-    <div>
-        <form>
-            项目名称:
-            <input id="id_aliase" type="text" name="projectname"/>
-            <br>
-            keystore文件:
-            <input id="id_keystore" type="file" name="keystore"/>
-            <br>
-            别名aliase:
-            <input id="id_aliase" type="text" name="aliase"/>
-            <br>
-            密码1:
-            <input id="id_psw1" type="text" name="storepass"/>
-            <br>
-            密码2:
-            <input id="id_psw2" type="text" name="keypass"/>
-            <br>
-            <input type="submit"></input>
-        </form>
-    </div>
-</form>
-<br>
-<h1>项目列表</h1>
-{% for file in projects_list %}
+    {% for file in projects_list %}
     #### {{ file["project_name"] }}####
     <br>
     ----未签名apk上传----
@@ -67,3 +43,4 @@
     {% endif %}
     <br><br>
 {% endfor %}
+{% endblock %}
