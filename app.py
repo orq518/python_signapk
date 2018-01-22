@@ -20,7 +20,7 @@ ALLOWED_EXTENSIONS = set(['txt', 'png', 'jpg', 'xls', 'JPG', 'PNG', 'xlsx', 'gif
 
 @app.route('/user/<name>')
 def user(name):
-    return render_template('user.html', name=name)
+    return render_template('project_list1.html', name=name)
 
 # 用于判断文件后缀
 def allowed_file(filename):
@@ -31,11 +31,6 @@ def allowed_file(filename):
 def allowed_file_apk(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] == "apk"
 
-
-# # 用于测试上传，稍后用到
-# @app.route('/upload')
-# def upload_test():
-#     return render_template('upload.html')
 # 用于测试上传，稍后用到
 @app.route('/error<err_msg>')
 def error(err_msg):
@@ -50,6 +45,7 @@ def projectlist_page():
     return render_template('project_list.html')
 
 # 新建项目工程
+@app.route('/', methods=['POST'], strict_slashes=False)
 @app.route('/new_project', methods=['POST'], strict_slashes=False)
 def new_project():
     projectname = request.form.get('projectname')  # 项目名称
@@ -115,24 +111,26 @@ def upload_apk(project_name):
     else:
         return redirect(url_for('error', err_msg="文件上传失败"))
 
-
-@app.route('/manage')
-def manage_file():
+@app.route('/manage<project_name>')
+def refresh_project(project_name):
     file_dir = os.path.join(basedir, app.config['UPLOAD_FOLDER'])
     projects_list = os.listdir(file_dir)
     projects = []
     print("读取项目列表：", projects_list)
+    curindex=0
+    index=0
     for project in projects_list:
         project_dir = os.path.join(file_dir, project)
-
-        print(len(""+project))
         if project.strip().startswith('.'):
-            print("project--DS_Store：", project)
             continue
         projects_content = os.listdir(project_dir)
         print("读取项目内容：", projects_content)
         project_dict = {}
         project_dict['project_name'] = "" + project
+        project_dict['id']=str(index)
+        if project_name==project:
+            curindex = index
+        index=index+1
         for file in projects_content:
             if file.startswith('keystore_'):  # 读取keystore文件名
                 project_dict['keystore_name'] = file
@@ -161,7 +159,57 @@ def manage_file():
                     config_file.close()
                 projects.append(project_dict)
 
-    return render_template('project_list.html', projects_list=projects)
+    return render_template('project_list.html', projects_list=projects,cur_project=projects[curindex])
+
+
+@app.route('/manage')
+def manage_file():
+    file_dir = os.path.join(basedir, app.config['UPLOAD_FOLDER'])
+    projects_list = os.listdir(file_dir)
+    projects = []
+    print("读取项目列表：", projects_list)
+    index=0
+    for project in projects_list:
+        project_dir = os.path.join(file_dir, project)
+        if project.strip().startswith('.'):
+            continue
+        projects_content = os.listdir(project_dir)
+        print("读取项目内容：", projects_content)
+        project_dict = {}
+        project_dict['project_name'] = "" + project
+        project_dict['id']=str(index)
+        index=index+1
+        for file in projects_content:
+            if file.startswith('keystore_'):  # 读取keystore文件名
+                project_dict['keystore_name'] = file
+                project_dict['keystore_path'] = os.path.join(project_dir, file)
+            elif file.startswith('unsign_'):  # 未签名文件
+                project_dict['unsign_apk_name'] = file
+                project_dict['unsign_apk_path'] = os.path.join(project_dir, file)
+            elif file.startswith('signed_'):  # 已经签名apk
+                project_dict['signed_apk_name'] = file
+                project_dict['signed_apk_path'] = os.path.join(project_dir, file)
+            elif file.startswith('config_'):  # keystore配置文件
+                config_file_path = os.path.join(project_dir, file)
+                print('config_file_path:', config_file_path)
+                config_file = open(config_file_path)
+                if not config_file:
+                    continue
+                # "aliase=" + aliase + "#" + "storepass=" + storepass + "#" + "keypass=" + keypass
+                try:
+                    context = config_file.read()
+                    data = context.split('#')
+                    for text in data:
+                        t = text.split('=')
+                        if len(t) == 2:
+                            project_dict[t[0]] = t[1]
+                finally:
+                    config_file.close()
+                projects.append(project_dict)
+    if len(projects)==0:
+        return  redirect(url_for('new_project_page'))
+    else:
+        return render_template('project_list.html', projects_list=projects,cur_project=projects[0])
 
 
 @app.route('/download_file/<project_name>/<file_name>')
@@ -280,4 +328,6 @@ def delete(project_name, file_name):
 #         return jsonify({"errno": 1001, "errmsg": "上传失败"})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)#局域网可以访问
+

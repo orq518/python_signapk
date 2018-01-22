@@ -1,46 +1,103 @@
 {% extends "base.html" %}
 {% block title %}项目签名{% endblock %}
 {% block page_content %}
-{#      <form action="" method="get">#}
-{#        <label>1、普通下拉列表菜单</label>#}
-{#        <select name="">#}
-{#            <option value="0">DIVCSS5</option>#}
-{#            <option value="1">DIVCSS5</option>#}
-{#        </select>#}
-{#    </form>#}
-
-    {% for file in projects_list %}
-    #### {{ file["project_name"] }}####
-    <br>
-    ----未签名apk上传----
-    <form id="form1" method="post" action="{{ url_for("upload_apk",project_name=file["project_name"]) }}"
-          enctype="multipart/form-data">
-        <div>
-            <input id="File1" type="file" name="apkfile"/>
-            <input type="submit"></input>
+    
+    <div id="content" class="row-fluid">
+        <div class="col-md-2">
+            {% for file in projects_list %}
+                <p><a class="btn btn-success btn-large"
+                      href="{{ url_for("refresh_project",project_name=file["project_name"]) }}">{{ file["project_name"] }}</a>
+                </p>
+            {% endfor %}
         </div>
-    </form>
-    <br>
-    {% if "unsign_apk_name" in file %}
-        未签名文件({{ file["unsign_apk_name"] }})
-        <a href="{{ url_for('delete', project_name=file['project_name'] ,file_name=file["unsign_apk_name"]) }}">删除</a>
-        <br>
-        <br>
-        <a href="{{ url_for('sign_apk', project_name=file["project_name"]) }}">开始签名</a>
-        <br>
-    {% else %}
-        无未签名的apk,请上传
-        <br>
-    {% endif %}
-    <br>
-    {% if "signed_apk_name" in file %}
-        已签名文件({{ file["signed_apk_name"] }})
-        <a href="{{ url_for('download', project_name=file['project_name'] ,file_name=file["signed_apk_name"]) }}">下载</a>
-        <br>
-    {% else %}
-        无已经签名的apk
+        <div class="col-md-9">
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <div class="span3">
+                        <div class="well sidebar-nav">
+                            <ul class="nav nav-list">
+                                <div class="leaderboard">
+                                    #### {{ cur_project["project_name"] }}####
+                                    <br>
+                                    ----未签名apk上传----
+                                    <form id="form1" method="post"
+                                          action="{{ url_for("upload_apk",project_name=cur_project["project_name"]) }}"
+                                          enctype="multipart/form-data">
+                                        <div>
+                                            <input id="File1" type="file" name="apkfile"/>
+                                            <input type="submit"></input>
+                                        </div>
+                                    </form>
+                                    <br>
+                                    {% if "unsign_apk_name" in cur_project %}
+                                        未签名文件({{ cur_project["unsign_apk_name"] }})
+                                        <br>
+                                        <p><a class="btn btn-success btn-large"
+                                              href="{{ url_for('delete', project_name=cur_project['project_name'] ,file_name=cur_project["unsign_apk_name"]) }}">删除</a>
+                                        </p>
+                                        <br>
+                                        <br>
+                                        <a class="btn btn-success btn-large"
+                                           href="{{ url_for('sign_apk', project_name=cur_project["project_name"]) }}">开始签名</a>
+                                        <br>
+                                    {% else %}
+                                        无未签名的apk,请上传
+                                        <br>
+                                    {% endif %}
+                                    <br>
+                                    {% if "signed_apk_name" in cur_project %}
+                                        已签名文件({{ cur_project["signed_apk_name"] }})
+                                        <a href="{{ url_for('download', project_name=cur_project['project_name'] ,file_name=cur_project["signed_apk_name"]) }}">下载</a>
+                                        <br>
+                                    {% else %}
 
-    {% endif %}
-    <br><br>
-{% endfor %}
+                                    {% endif %}
+                                    <br><br>
+                                </div>
+                            </ul>
+                        </div><!--/.well -->
+                    </div><!--/span-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {#    <div>#}
+    {#        {% for file in projects_list %}#}
+    {#            #### {{ file["project_name"] }}#####}
+    {#            <br>#}
+    {#            ----未签名apk上传----#}
+    {#            <form id="form1" method="post" action="{{ url_for("upload_apk",project_name=file["project_name"]) }}"#}
+    {#                  enctype="multipart/form-data">#}
+    {#                <div>#}
+    {#                    <input id="File1" type="file" name="apkfile"/>#}
+    {#                    <input type="submit"></input>#}
+    {#                </div>#}
+    {#            </form>#}
+    {#            <br>#}
+    {#            {% if "unsign_apk_name" in file %}#}
+    {#                未签名文件({{ file["unsign_apk_name"] }})#}
+    {#                <a href="{{ url_for('delete', project_name=file['project_name'] ,file_name=file["unsign_apk_name"]) }}">删除</a>#}
+    {#                <br>#}
+    {#                <br>#}
+    {#                <a href="{{ url_for('sign_apk', project_name=file["project_name"]) }}">开始签名</a>#}
+    {#                <br>#}
+    {#            {% else %}#}
+    {#                无未签名的apk,请上传#}
+    {#                <br>#}
+    {#            {% endif %}#}
+    {#            <br>#}
+    {#            {% if "signed_apk_name" in file %}#}
+    {#                已签名文件({{ file["signed_apk_name"] }})#}
+    {#                <a href="{{ url_for('download', project_name=file['project_name'] ,file_name=file["signed_apk_name"]) }}">下载</a>#}
+    {#                <br>#}
+    {#            {% else %}#}
+    {#                无已经签名的apk#}
+    {##}
+    {#            {% endif %}#}
+    {#            <br><br>#}
+    {#        {% endfor %}#}
+    {#    </div>#}
 {% endblock %}
+
