@@ -287,17 +287,22 @@ def delete(project_name, file_name):
     print("删除的工程和文件", project_name, file_name)
     if request.method == "GET":
         file_dir = os.path.join(basedir, app.config['UPLOAD_FOLDER'])
+        print("delete##file_dir", file_dir)
         if file_name=="delapk":
-            projects_content = os.listdir(file_dir)
+            file_del_path = os.path.join(file_dir, project_name)
+            projects_content = os.listdir(file_del_path)
+            print("delete##projects_content", projects_content)
             for file in projects_content:
+                print("delete##file", file)
                 if file.startswith('signed_'):  # 已经签名apk  先删除
-                    file_del = os.path.join(file_dir, file)
+                    file_del = os.path.join(file_del_path, file)
+                    print("delete##file_del", file_del)
                     if os.path.isfile(file_del):
                         os.remove(file_del)
                 elif file.startswith('unsign_'):  # 未签名文件
-                    file_del = os.path.join(file_dir, file)
+                    file_del = os.path.join(file_del_path, file)
+                    print("delete##file_del", file_del)
                     if os.path.isfile(file_del):
-
                         os.remove(file_del)
             return redirect(url_for('manage_file'))
         else:
