@@ -161,7 +161,7 @@ def refresh_project(project_name):
 
     return render_template('project_list.html', projects_list=projects,cur_project=projects[curindex])
 
-
+@app.route('/')
 @app.route('/manage')
 def manage_file():
     file_dir = os.path.join(basedir, app.config['UPLOAD_FOLDER'])
@@ -287,10 +287,26 @@ def delete(project_name, file_name):
     print("删除的工程和文件", project_name, file_name)
     if request.method == "GET":
         file_dir = os.path.join(basedir, app.config['UPLOAD_FOLDER'])
-        file_del = os.path.join(file_dir, project_name, file_name)
-        if os.path.isfile(file_del):
-            os.remove(file_del)
+        if file_name=="delapk":
+            projects_content = os.listdir(file_dir)
+            for file in projects_content:
+                if file.startswith('signed_'):  # 已经签名apk  先删除
+                    file_del = os.path.join(file_dir, file)
+                    if os.path.isfile(file_del):
+                        os.remove(file_del)
+                elif file.startswith('unsign_'):  # 未签名文件
+                    file_del = os.path.join(file_dir, file)
+                    if os.path.isfile(file_del):
+
+                        os.remove(file_del)
             return redirect(url_for('manage_file'))
+        else:
+            file_del = os.path.join(file_dir, project_name, file_name)
+            if os.path.isfile(file_del):
+                os.remove(file_del)
+                return redirect(url_for('manage_file'))
+
+
 
 
 # @app.route('/open/<filename>')
